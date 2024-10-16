@@ -1,0 +1,35 @@
+import requests
+from bs4 import BeautifulSoup
+
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0"
+}
+
+for page in range(0, 250, 25):
+    res = requests.get(f"https://movie.douban.com/top250?start={page}", headers=headers)
+    html = res.text
+    soup = BeautifulSoup(html, "html.parser")
+
+    # 查找所有电影条目
+    all_movies = soup.find_all("div", class_="item")
+
+    for movie in all_movies:
+        # 获取电影标题
+        title = movie.find("span", class_="title").string
+        print(f"标题: {title}")
+
+        # 获取导演信息
+        info = movie.find("p", class_="").get_text().strip()
+        director = info.split("\n")[0].strip()
+        print(f"导演: {director}")
+
+        # 获取评分
+        rating = movie.find("span", class_="rating_num").string
+        print(f"评分: {rating}")
+
+        # 获取箴言（电影的经典台词）
+        inq = movie.find("span", class_="inq")
+        if inq:
+            print(f"箴言: {inq.string}")
+
+        print("-" * 40)
